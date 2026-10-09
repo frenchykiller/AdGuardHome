@@ -323,6 +323,8 @@ func isPublicResource(p string) (ok bool) {
 
 	paths := []string{
 		"/control/login",
+		"/control/oidc/login",
+		"/control/oidc/callback",
 		"/apple/doh.mobileconfig",
 		"/apple/dot.mobileconfig",
 		"/control/install/get_addresses",
