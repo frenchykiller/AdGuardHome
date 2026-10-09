@@ -80,6 +80,12 @@ const Form = ({ onSubmit, processing }: LoginFormProps) => {
                         disabled={processing || !isValid}>
                         {t('sign_in')}
                     </button>
+                    <a
+                        href="/control/oidc/login"
+                        className="btn btn-primary btn-block mt-3"
+                    >
+                        Login with OIDC
+                    </a>
                 </div>
             </div>
         </form>

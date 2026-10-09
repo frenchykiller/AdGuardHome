@@ -106,6 +106,11 @@ export const Form = (props: Props) => {
                         {intl.getMessage('forgot_password')}
                     </a>
                 </div>
+                <div class={theme.auth.footerRow} style={{ "margin-top": "16px" }}>
+                    <a href="/control/oidc/login" class={theme.auth.footerButton} style={{ "display": "flex", "align-items": "center", "justify-content": "center", "width": "100%", "text-decoration": "none", "background-color": "var(--primary-color, #007bff)", "color": "white", "padding": "8px 16px", "border-radius": "4px", "font-weight": "bold" }}>
+                        Login with OIDC
+                    </a>
+                </div>
             </div>
         </Form>
     );

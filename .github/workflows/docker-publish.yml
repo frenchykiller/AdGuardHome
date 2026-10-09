@@ -1,0 +1,88 @@
+name: Docker Publish
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  release:
+    types: [published]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build AdGuardHome Binaries
+        run: |
+          make ARCH='386 amd64 arm arm64 ppc64le' OS=linux VERBOSE=1 SIGN=0 build-release
+
+      - name: Prepare Docker Context
+        run: |
+          dist_dir="dist"
+          dist_docker="${dist_dir}/docker"
+          mkdir -p "$dist_docker"
+          cp "${dist_dir}/AdGuardHome_linux_386/AdGuardHome/AdGuardHome" \
+            "${dist_docker}/AdGuardHome_linux_386_"
+          cp "${dist_dir}/AdGuardHome_linux_amd64/AdGuardHome/AdGuardHome" \
+            "${dist_docker}/AdGuardHome_linux_amd64_"
+          cp "${dist_dir}/AdGuardHome_linux_arm64/AdGuardHome/AdGuardHome" \
+            "${dist_docker}/AdGuardHome_linux_arm64_"
+          cp "${dist_dir}/AdGuardHome_linux_arm_6/AdGuardHome/AdGuardHome" \
+            "${dist_docker}/AdGuardHome_linux_arm_v6"
+          cp "${dist_dir}/AdGuardHome_linux_arm_7/AdGuardHome/AdGuardHome" \
+            "${dist_docker}/AdGuardHome_linux_arm_v7"
+          cp "${dist_dir}/AdGuardHome_linux_ppc64le/AdGuardHome/AdGuardHome" \
+            "${dist_docker}/AdGuardHome_linux_ppc64le_"
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/frenchykiller/AdGuardHome
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/build.Dockerfile
+          push: true
+          platforms: linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+            VERSION=${{ steps.meta.outputs.version }}
+            VCS_REF=${{ github.sha }}
+            DIST_DIR=dist

@@ -293,6 +293,11 @@ func (web *webAPI) registerAuthHandlers() {
 		web.postInstallHandler(http.HandlerFunc(web.handleLogin)),
 	)
 	web.httpReg.Register(http.MethodGet, "/control/logout", web.handleLogout)
+
+	// OIDC initialization and handlers
+	_ = initOIDC(context.Background())
+	web.httpReg.Register(http.MethodGet, "/control/oidc/login", web.handleOIDCLogin)
+	web.httpReg.Register(http.MethodGet, "/control/oidc/callback", web.handleOIDCCallback)
 }
 
 // isPublicResource returns true if p is a path to a public resource.
