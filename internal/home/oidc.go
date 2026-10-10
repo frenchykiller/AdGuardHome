@@ -23,7 +23,7 @@ var (
 )
 
 func initOIDC(ctx context.Context) error {
-	issuer := os.Getenv("OIDC_ISSUER")
+	issuer := os.Getenv("OIDC_ISSUER_URL")
 	clientID := os.Getenv("OIDC_CLIENT_ID")
 	clientSecret := os.Getenv("OIDC_CLIENT_SECRET")
 	redirectURI := os.Getenv("OIDC_REDIRECT_URI")

@@ -121,7 +121,7 @@ func TestOIDCInitAndHandlers(t *testing.T) {
 	server := mockOIDCServer(t, jwk, priv, "test-client")
 	defer server.Close()
 
-	os.Setenv("OIDC_ISSUER", server.URL)
+	os.Setenv("OIDC_ISSUER_URL", server.URL)
 	os.Setenv("OIDC_CLIENT_ID", "test-client")
 	os.Setenv("OIDC_CLIENT_SECRET", "test-secret")
 	os.Setenv("OIDC_REDIRECT_URI", "http://localhost/callback")
